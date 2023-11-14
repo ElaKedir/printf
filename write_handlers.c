@@ -17,13 +17,13 @@ int handle_write_char(char c, char buffer[],
 	int flags, int width, int precision, int size)
 { /* char is stored at left and paddind at buffer's right */
 	int i = 0;
-	char padd = ' ';
+	char paddind = ' ';
 
 	UNUSED(precision);
 	UNUSED(size);
 
 	if (flags & F_ZERO)
-		padd = '0';
+		paddind = '0';
 
 	buffer[i++] = c;
 	buffer[i] = '\0';
@@ -32,7 +32,7 @@ int handle_write_char(char c, char buffer[],
 	{
 		buffer[BUFF_SIZE - 1] = '\0';
 		for (i = 0; i < width - 1; i++)
-			buffer[BUFF_SIZE - i - 2] = padd;
+			buffer[BUFF_SIZE - i - 2] = paddind;
 
 		if (flags & F_MINUS)
 			return (write(1, &buffer[0], 1) +
