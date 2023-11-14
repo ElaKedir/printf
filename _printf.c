@@ -1,6 +1,6 @@
 #include "main.h"
 
-void print_buf(char buf[], int *i);
+void print_buf(char buf[], int *ind);
 
 /**
  * _printf - Printf function
@@ -11,7 +11,7 @@ void print_buf(char buf[], int *i);
 int _printf(const char *format, ...)
 {
 	int i, printed = 0, count = 0;
-	int flags, width, precision, size, i = 0;
+	int flags, width, precision, size, ind = 0;
 	va_list list;
 	char buf[BUFF_SIZE];
 
@@ -24,14 +24,14 @@ int _printf(const char *format, ...)
 	{
 		if (format[i])
 		{
-			buf[i++] = format[i];
-			if (i == BUFF_SIZE)
-				print_buf(buf, &i);
+			buf[ind++] = format[i];
+			if (ind == BUFF_SIZE)
+				print_buf(buf, &ind);
 			count++;
 		}
 		else
 		{
-			print_buf(buf, &i);
+			print_buf(buf, &ind);
 			flags = get_flags(format, &i);
 			width = get_width(format, &i, list);
 			precision = get_precision(format, &i, list);
@@ -45,7 +45,7 @@ int _printf(const char *format, ...)
 		}
 	}
 
-	print_buf(buf, &i);
+	print_buf(buf, &ind);
 
 	va_end(list);
 
@@ -55,13 +55,13 @@ int _printf(const char *format, ...)
 /**
  * print_buf - Prints the contents of the buf if it exist
  * @buf: Array of chars
- * @i: Index at which to add next char, represents the length.
+ * @ind: Index at which to add next char, represents the length.
  */
-void print_buf(char buf[], int *i)
+void print_buf(char buf[], int *ind)
 {
-	if (*i > 0)
-		write(1, &buf[0], *i);
+	if (*ind > 0)
+		write(1, &buf[0], *ind);
 
-	*i = 0;
+	*ind = 0;
 }
 
