@@ -1,130 +1,67 @@
 #include "main.h"
 
-/**
- * _printf - a function that works like printf.
- * @format: the characters that will be printed on the std display.
- *
- * Return: count.
- */
+void print_buffer(char buffer[], int *buff_ind);
 
+/**
+ * _printf - Printf function
+ * @format: format.
+ * Return: Printed chars.
+ */
 int _printf(const char *format, ...)
 {
+	int i, printed = 0, printed_chars = 0;
+	int flags, width, precision, size, buff_ind = 0;
+	va_list list;
+	char buffer[BUFF_SIZE];
+
 	if (format == NULL)
-	{
-		return (1);
-	}
-	unsigned int i, spec, count = 0;
-	unsigned int len = strlen(format);
-	va_list args;
+		return (-1);
 
-	va_start(args, format);
+	va_start(list, format);
 
-	for (i = 0; i < len; i++)
+	for (i = 0; format && format[i] != '\0'; i++)
 	{
-		if (format[i] == '%' && format[i + 1] == '%')
+		if (format[i] != '%')
 		{
-			spec = '%';
-			write(1, &spec, 1);
-			i++;
-		}
-		else if (format[i] == '%' && format[i + 1] == 'c')
-		{
-			print_char(va_arg(args, int));
-			i++;
-		}
-		else if (format[i] == '%' && format[i + 1] == 's')
-		{
-			print_string(va_arg(args, char *));
-			i++;
-		}
-			else if (format[i] == '%' && format[i + 1] == 'd')
-		{
-			print_int(va_arg(args, int));
-			i++;
+			buffer[buff_ind++] = format[i];
+			if (buff_ind == BUFF_SIZE)
+				print_buffer(buffer, &buff_ind);
+			/* write(1, &format[i], 1);*/
+			printed_chars++;
 		}
 		else
-			write(1, &format[i], 1);
-		count++;
+		{
+			print_buffer(buffer, &buff_ind);
+			flags = get_flags(format, &i);
+			width = get_width(format, &i, list);
+			precision = get_precision(format, &i, list);
+			size = get_size(format, &i);
+			++i;
+			printed = handle_print(format, &i, list, buffer,
+				flags, width, precision, size);
+			if (printed == -1)
+				return (-1);
+			printed_chars += printed;
+		}
 	}
-	return (count);
-}
 
+	print_buffer(buffer, &buff_ind);
 
+	va_end(list);
 
-/**
- * print_char - a function that prints characters.
- * @spec: the characters to be printed.
- *
- * Return: the printed characters.
- */
-
-int print_char(int spec)
-{
-	return (write(1, &spec, 1));
-}
-
-/**
- * print_string - a function that prints a string of characters.
- * @spec: the string of characters to be printed.
- *
- * Return: the printed string of characters.
- */
-
-int print_string(char *spec)
-{
-	if (spec == NULL)
-	{
-		return (1);
-	}
-	unsigned int i, count = 0;
-	unsigned int len = strlen(spec);
-
-	for (i = 0; i < len; i++)
-	{
-		print_char((int)spec[i]);
-		count++;
-	}
-	return (count);
+	return (printed_chars);
 }
 
 /**
- * print_int - a function that prints intigers.
- * @spec: the intigers to be printed.
- *
- * Return: the printed intigers.
+ * print_buffer - Prints the contents of the buffer if it exist
+ * @buffer: Array of chars
+ * @buff_ind: Index at which to add next char, represents the length.
  */
-
-int print_int(int spec)
+void print_buffer(char buffer[], int *buff_ind)
 {
-	char buffer[20];
-	int count = 0;
-	int i = 0;
+	if (*buff_ind > 0)
+		write(1, &buffer[0], *buff_ind);
 
-	if (spec == 0)
-	{
-		buffer[i++] = '0';
-		write(1, buffer, 1);
-		return (1);
-	}
-
-	if (spec < 0)
-	{
-		write(1, "-", 1);
-		spec = -spec;
-		count++;
-	}
-
-	while (spec > 0)
-	{
-		buffer[i++] = spec % 10 + '0';
-		spec /= 10;
-	}
-
-	for (int j = i - 1; j >= 0; j--)
-	{
-		write(1, &buffer[j], 1);
-		count++;
-	}
-
-	return (count);
+	*buff_ind = 0;
 }
+
